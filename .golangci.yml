@@ -77,7 +77,6 @@ linters:
     - lll
     - misspell
     - nakedret
-    - nlreturn
     - noctx
     - nolintlint
     - rowserrcheck
