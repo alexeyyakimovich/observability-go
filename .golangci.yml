@@ -54,9 +54,13 @@ linters:
     - dogsled
     - dupl
     - errcheck
+    - errorlint
     - exhaustive
+    - exhaustivestruct
     - exportloopref
+    - forbidigo
     - funlen
+    - gci
     - gochecknoinits
     - goconst
     - gocritic
@@ -72,19 +76,26 @@ linters:
     - gosec
     - gosimple
     - govet
+    - ifshort
     - ineffassign
     - interfacer
     - lll
+    - makezero
     - misspell
     - nakedret
+    - nlreturn
     - noctx
     - nolintlint
+    - paralleltest
+    - predeclared
     - rowserrcheck
     - scopelint
     - sqlclosecheck
     - staticcheck
     - structcheck
     - stylecheck
+    - thelper
+    - tparallel
     - typecheck
     - unconvert
     - unparam
@@ -101,6 +112,7 @@ linters:
     - nestif
     - prealloc
     - testpackage
+    - wrapcheck
     - wsl
 issues:
   exclude-use-default: false

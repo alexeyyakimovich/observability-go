@@ -9,6 +9,17 @@ const (
 	DefaultSamplingRate = 0.05
 )
 
+// DefaultLogger creates instance of logger if no config provided.
+func DefaultLogger() Logger {
+	loggerConfig := LoggerConfiguration{
+		MinLevel:  DefaultLogLevel,
+		SentryDSN: "",
+	}
+	logger := NewLogger(loggerConfig, "", "", map[string]interface{}{})
+
+	return logger
+}
+
 // InitDefaults initializes Logger, MetricsExporter and Tracer with default values.
 func InitDefaults(appID, version, tracerEndpoint, sentryDSN string, fields map[string]interface{}) {
 	fields["app id"] = appID

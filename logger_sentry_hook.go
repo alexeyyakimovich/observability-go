@@ -1,11 +1,15 @@
 package observability
 
 import (
+	"fmt"
 	"reflect"
+	"time"
 
 	"github.com/getsentry/sentry-go"
 	log "github.com/sirupsen/logrus"
 )
+
+const flushTimeout = 2
 
 // severityMap is a mapping of logrus log level to sentry log level.
 var severityMap = map[log.Level]sentry.Level{ //nolint:gochecknoglobals // application-level mapping
@@ -34,14 +38,14 @@ func (m *SentryEventIdentityModifier) ApplyToEvent(event *sentry.Event, hint *se
 
 // NewSentryHook creates a sentry hook for logrus given a sentry dsn.
 func NewSentryHook(dsn, release string) (*SentryHook, error) {
-	client, err := sentry.NewClient(sentry.ClientOptions{
+	client, err := sentry.NewClient(sentry.ClientOptions{ //nolint:exhaustivestruct // this is exact fieldset we need.
 		Dsn:     dsn,
 		Release: release,
 	})
 	if err != nil {
 		log.WithField("error", err).Error("Unable to initialize Sentry")
 
-		return nil, err
+		return nil, fmt.Errorf("sentry initialization error: %w", err)
 	}
 
 	return &SentryHook{
@@ -90,6 +94,8 @@ func (h *SentryHook) Fire(e *log.Entry) error {
 	sentryModifier := &SentryEventIdentityModifier{}
 
 	h.client.CaptureEvent(event, nil, sentryModifier)
+
+	h.client.Flush(flushTimeout * time.Second)
 
 	return nil
 }

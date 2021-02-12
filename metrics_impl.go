@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"runtime"
+	"sync"
 	"syscall"
 	"time"
 
@@ -26,7 +27,8 @@ type metricsExporter struct {
 	rps     metric.Int64ValueRecorder
 
 	// utils
-	quit bool
+	mutex   sync.Mutex
+	started bool
 
 	// configuration
 	config MetricsConfiguration
@@ -98,7 +100,7 @@ func (exporter *metricsExporter) updateServiceMetrics() {
 		)
 		time.Sleep(time.Second * time.Duration(exporter.config.CollectionInterval))
 
-		if exporter.quit {
+		if !exporter.started {
 			break
 		}
 	}
@@ -106,51 +108,59 @@ func (exporter *metricsExporter) updateServiceMetrics() {
 
 // Reset stops metrics collection routine.
 func (exporter *metricsExporter) Stop() {
-	exporter.quit = true
+	exporter.started = false
 }
 
 func (exporter *metricsExporter) Start() {
-	go exporter.updateServiceMetrics()
+	exporter.mutex.Lock()
+	defer exporter.mutex.Unlock()
+
+	if !exporter.started {
+		exporter.started = true
+
+		go exporter.updateServiceMetrics()
+	}
 }
 
 // NewMetricsExporter initializes new prometheus exporter.
 func NewMetricsExporter(config MetricsConfiguration, log Logger, fields map[string]interface{}) MetricsExporter {
-	if config.CollectionInterval > 0 {
-		const scope = "metric exporter"
-
-		// NOTE: will be moved back to go.opentelemetry.io/otel/metric/global
-		meter := otel.GetMeterProvider().Meter("github.com/alexeyyakimovich/observability-go")
-
-		exporter, err := prometheus.InstallNewPipeline(prometheus.Config{})
-		if err != nil {
-			log.WithField("scope", scope).Error(err)
-		}
-
-		counter, err := meter.NewInt64Counter("operation_requests_total",
-			metric.WithDescription("Number of requests"))
-		if err != nil {
-			log.WithField("scope", scope).Error(err)
-		}
-
-		rps, err := meter.NewInt64ValueRecorder("requests_duration",
-			metric.WithDescription("Request duration."),
-		)
-		if err != nil {
-			log.WithField("scope", scope).Error(err)
-		}
-
-		result := metricsExporter{
-			exporter: exporter,
-			fields:   fields,
-			meter:    meter,
-			counter:  counter,
-			rps:      rps,
-			quit:     false,
-			config:   config,
-		}
-
-		return &result
+	if config.CollectionInterval <= 0 {
+		return nil
 	}
 
-	return nil
+	const scope = "metric exporter"
+
+	// NOTE: will be moved back to go.opentelemetry.io/otel/metric/global
+	meter := otel.GetMeterProvider().Meter("github.com/alexeyyakimovich/observability-go")
+
+	exporter, err := prometheus.InstallNewPipeline(prometheus.Config{})
+	if err != nil {
+		log.WithField("scope", scope).Error(err)
+	}
+
+	counter, err := meter.NewInt64Counter("operation_requests_total",
+		metric.WithDescription("Number of requests"))
+	if err != nil {
+		log.WithField("scope", scope).Error(err)
+	}
+
+	rps, err := meter.NewInt64ValueRecorder("requests_duration",
+		metric.WithDescription("Request duration."),
+	)
+	if err != nil {
+		log.WithField("scope", scope).Error(err)
+	}
+
+	result := metricsExporter{
+		exporter: exporter,
+		fields:   fields,
+		meter:    meter,
+		counter:  counter,
+		rps:      rps,
+		started:  false,
+		mutex:    sync.Mutex{},
+		config:   config,
+	}
+
+	return &result
 }

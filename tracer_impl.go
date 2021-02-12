@@ -5,6 +5,7 @@ import (
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/trace/jaeger"
+	"go.opentelemetry.io/otel/label"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -24,7 +25,7 @@ func NewTracer(config TracingConfiguration, appID string, log Logger) Tracer {
 }
 
 func configureJaegerTracer(config TracingConfiguration, appID string, log Logger) {
-	sdkConfig := sdktrace.Config{
+	sdkConfig := sdktrace.Config{ //nolint:exhaustivestruct // the only options we need.
 		DefaultSampler: sdktrace.TraceIDRatioBased(config.SamplingProbability),
 	}
 
@@ -32,6 +33,7 @@ func configureJaegerTracer(config TracingConfiguration, appID string, log Logger
 		jaeger.WithAgentEndpoint(config.TracerEndpoint),
 		jaeger.WithProcess(jaeger.Process{
 			ServiceName: appID,
+			Tags:        []label.KeyValue{},
 		}),
 	)
 	if err != nil {

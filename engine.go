@@ -30,12 +30,24 @@ func SetLogger(logger Logger, fields map[string]interface{}) {
 	engine := getInstance()
 
 	fields["instance ID"] = engine.instanceID.String()
-	engine.logger = logger.WithFields(fields)
+
+	if logger != nil {
+		engine.logger = logger.WithFields(fields)
+	} else {
+		engine.logger = DefaultLogger().WithFields(fields)
+	}
 }
 
-// GetLogger returns global Logger or nil, if it wasn't initialized.
+// GetLogger returns global Logger.
 func GetLogger() Logger {
-	return getInstance().logger
+	logger := getInstance().logger
+
+	if logger == nil {
+		logger = DefaultLogger()
+		SetLogger(logger, map[string]interface{}{})
+	}
+
+	return logger
 }
 
 // SetTracer sets global tracer.
@@ -52,7 +64,8 @@ func SetMetricsExporter(exporter MetricsExporter) {
 	getInstance().metricsExporter = exporter
 }
 
-func getMetricsExporter() MetricsExporter {
+// GetMetricsExporter returns global MetricsExporter or nil, if it wasn't initialized.
+func GetMetricsExporter() MetricsExporter {
 	return getInstance().metricsExporter
 }
 
@@ -63,18 +76,15 @@ func StartOperation(ctx context.Context, operationID string, fields map[string]i
 	fields["ID"] = id.String()
 	fields["operation"] = operationID
 
-	logger := GetLogger()
-
-	if logger != nil {
+	if logger := GetLogger(); logger != nil {
 		logger.WithFields(fields).Info("operation started")
 	}
 
-	tracer := getTracer()
 	spanCtx := ctx
 
 	var span Span = nil
 
-	if tracer != nil {
+	if tracer := getTracer(); tracer != nil {
 		spanCtx, span = tracer.Start(ctx, operationID, fields)
 	}
 

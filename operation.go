@@ -39,7 +39,7 @@ func (op *operation) End(result interface{}) {
 		}
 
 		// metric
-		exporter := getMetricsExporter()
+		exporter := GetMetricsExporter()
 		if exporter != nil {
 			exporter.AddOperationCall(op.operationID, duration, result, op.fields)
 		}
