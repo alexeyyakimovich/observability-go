@@ -1,3 +1,4 @@
+// Package observability for logging, tracing and exporting metrics.
 package observability
 
 import (
@@ -14,7 +15,7 @@ type engine struct {
 	metricsExporter MetricsExporter
 }
 
-var instance *engine
+var instance *engine //nolint:gochecknoglobals // singleton
 
 func getInstance() *engine {
 	if instance == nil {
@@ -24,6 +25,7 @@ func getInstance() *engine {
 	return instance
 }
 
+// SetLogger sets global logger.
 func SetLogger(logger Logger, fields map[string]interface{}) {
 	engine := getInstance()
 
@@ -31,10 +33,12 @@ func SetLogger(logger Logger, fields map[string]interface{}) {
 	engine.logger = logger.WithFields(fields)
 }
 
+// GetLogger returns global Logger or nil, if it wasn't initialized.
 func GetLogger() Logger {
 	return getInstance().logger
 }
 
+// SetTracer sets global tracer.
 func SetTracer(tracer Tracer) {
 	getInstance().tracer = tracer
 }
@@ -43,6 +47,7 @@ func getTracer() Tracer {
 	return getInstance().tracer
 }
 
+// SetMetricsExporter sets global metrics exporter.
 func SetMetricsExporter(exporter MetricsExporter) {
 	getInstance().metricsExporter = exporter
 }

@@ -9,6 +9,7 @@ const (
 	DefaultSamplingRate = 0.05
 )
 
+// InitDefaults initializes Logger, MetricsExporter and Tracer with default values.
 func InitDefaults(appID, version, tracerEndpoint, sentryDSN string, fields map[string]interface{}) {
 	fields["app id"] = appID
 	fields["version"] = version

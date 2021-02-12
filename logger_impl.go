@@ -60,6 +60,7 @@ func (wrapper logrusWrapper) WithFields(fields map[string]interface{}) Logger {
 	for k, v := range fields {
 		f[k] = v
 	}
+
 	return &logrusWrapper{
 		logrus: wrapper.logrus,
 		fields: f,
@@ -80,6 +81,7 @@ func (wrapper logrusWrapper) SetLevel(level Level) {
 	wrapper.logrus.SetLevel(log.Level(level))
 }
 
+// NewLogger creates new Logger instance.
 func NewLogger(config LoggerConfiguration, appID, version string, fields map[string]interface{}) Logger {
 	wrapper := logrusWrapper{
 		logrus: log.New(),

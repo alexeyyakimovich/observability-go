@@ -1,0 +1,12 @@
+coverage:
+  notify:
+    slack:
+      default:
+        url: "https://hooks.slack.com/services/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"
+  status:
+    project:
+      default:
+        informational: True
+    patch:
+      default:
+        informational: True

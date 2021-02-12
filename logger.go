@@ -1,6 +1,6 @@
 package observability
 
-// Level type
+// Level log level type.
 type Level uint32
 
 // These are the different logging levels. You can set the logging level to log

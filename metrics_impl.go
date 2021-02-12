@@ -43,7 +43,11 @@ func (exporter *metricsExporter) HTTPHandler(w http.ResponseWriter, r *http.Requ
 }
 
 // AddOperationCall adds duration metric and increases request count by 1 for operation.
-func (exporter *metricsExporter) AddOperationCall(operationID string, duration time.Duration, result interface{}, fields map[string]interface{}) {
+func (exporter *metricsExporter) AddOperationCall(
+	operationID string,
+	duration time.Duration,
+	result interface{},
+	fields map[string]interface{}) {
 	labels := fieldsToLabels(fields)
 
 	labels = append(labels,
@@ -109,12 +113,12 @@ func (exporter *metricsExporter) Start() {
 	go exporter.updateServiceMetrics()
 }
 
-// Configure initializes exporter with metrics and starts metrics scrapping.
+// NewMetricsExporter initializes new prometheus exporter.
 func NewMetricsExporter(config MetricsConfiguration, log Logger, fields map[string]interface{}) MetricsExporter {
 	if config.CollectionInterval > 0 {
 		const scope = "metric exporter"
 
-		//NOTE: will be moved back to go.opentelemetry.io/otel/metric/global
+		// NOTE: will be moved back to go.opentelemetry.io/otel/metric/global
 		meter := otel.GetMeterProvider().Meter("github.com/alexeyyakimovich/observability-go")
 
 		exporter, err := prometheus.InstallNewPipeline(prometheus.Config{})
@@ -144,8 +148,6 @@ func NewMetricsExporter(config MetricsConfiguration, log Logger, fields map[stri
 			quit:     false,
 			config:   config,
 		}
-
-		go result.updateServiceMetrics()
 
 		return &result
 	}

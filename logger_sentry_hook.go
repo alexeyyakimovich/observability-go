@@ -8,7 +8,7 @@ import (
 )
 
 // severityMap is a mapping of logrus log level to sentry log level.
-var severityMap = map[log.Level]sentry.Level{
+var severityMap = map[log.Level]sentry.Level{ //nolint:gochecknoglobals // application-level mapping
 	log.DebugLevel: sentry.LevelDebug,
 	log.InfoLevel:  sentry.LevelInfo,
 	log.WarnLevel:  sentry.LevelWarning,
@@ -32,17 +32,15 @@ func (m *SentryEventIdentityModifier) ApplyToEvent(event *sentry.Event, hint *se
 	return event
 }
 
-var sentryModifier = &SentryEventIdentityModifier{}
-
-// NewSentryHook creates a sentry hook for logrus given a sentry dsn
+// NewSentryHook creates a sentry hook for logrus given a sentry dsn.
 func NewSentryHook(dsn, release string) (*SentryHook, error) {
 	client, err := sentry.NewClient(sentry.ClientOptions{
 		Dsn:     dsn,
 		Release: release,
 	})
-
 	if err != nil {
 		log.WithField("error", err).Error("Unable to initialize Sentry")
+
 		return nil, err
 	}
 
@@ -71,6 +69,7 @@ func (h *SentryHook) Fire(e *log.Entry) error {
 	event.Timestamp = e.Time.UTC()
 
 	var err error
+
 	for k, v := range e.Data {
 		if k == log.ErrorKey {
 			err = v.(error)
@@ -88,6 +87,9 @@ func (h *SentryHook) Fire(e *log.Entry) error {
 		}}
 	}
 
+	sentryModifier := &SentryEventIdentityModifier{}
+
 	h.client.CaptureEvent(event, nil, sentryModifier)
+
 	return nil
 }
