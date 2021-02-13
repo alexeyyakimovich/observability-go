@@ -89,6 +89,7 @@ func NewLogger(config LoggerConfiguration, appID, version string, fields map[str
 	}
 
 	wrapper.SetLevel(config.MinLevel)
+	wrapper.logrus.SetFormatter(&log.JSONFormatter{})
 
 	if config.SentryDSN != "" {
 		sentryHook, err := NewSentryHook(config.SentryDSN, appID+"@"+version)

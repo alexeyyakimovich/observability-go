@@ -123,12 +123,14 @@ func (exporter *metricsExporter) Start() {
 }
 
 // NewMetricsExporter initializes new prometheus exporter.
-func NewMetricsExporter(config MetricsConfiguration, log Logger, fields map[string]interface{}) MetricsExporter {
+func NewMetricsExporter(config MetricsConfiguration, fields map[string]interface{}) MetricsExporter {
 	if config.CollectionInterval <= 0 {
 		return nil
 	}
 
 	const scope = "metric exporter"
+
+	log := GetLogger()
 
 	// NOTE: will be moved back to go.opentelemetry.io/otel/metric/global
 	meter := otel.GetMeterProvider().Meter("github.com/alexeyyakimovich/observability-go")

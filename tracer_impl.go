@@ -11,20 +11,21 @@ import (
 )
 
 // NewTracer traces exporter with provided values.
-func NewTracer(config TracingConfiguration, appID string, log Logger) Tracer {
+func NewTracer(config TracingConfiguration, appID string) Tracer {
 	wrapper := &tracerWrapper{}
 
 	if config.SamplingProbability > 0 && config.TracerEndpoint != "" {
 		// NOTE: will be moved back to go.opentelemetry.io/otel/api/global.
 		wrapper.tracer = otel.GetTracerProvider().Tracer("github.com/alexeyyakimovich/observability-go")
 
-		configureJaegerTracer(config, appID, log)
+		configureJaegerTracer(config, appID)
 	}
 
 	return wrapper
 }
 
-func configureJaegerTracer(config TracingConfiguration, appID string, log Logger) {
+func configureJaegerTracer(config TracingConfiguration, appID string) {
+	log := GetLogger()
 	sdkConfig := sdktrace.Config{ //nolint:exhaustivestruct // the only options we need.
 		DefaultSampler: sdktrace.TraceIDRatioBased(config.SamplingProbability),
 	}

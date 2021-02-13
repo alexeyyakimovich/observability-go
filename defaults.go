@@ -38,7 +38,7 @@ func InitDefaults(appID, version, tracerEndpoint, sentryDSN string, fields map[s
 	exporterConfig := MetricsConfiguration{
 		CollectionInterval: DefaultMetricsCollectionInterval,
 	}
-	exporter := NewMetricsExporter(exporterConfig, logger, fields)
+	exporter := NewMetricsExporter(exporterConfig, fields)
 
 	exporter.Start()
 	SetMetricsExporter(exporter)
@@ -49,7 +49,7 @@ func InitDefaults(appID, version, tracerEndpoint, sentryDSN string, fields map[s
 			SamplingProbability: DefaultSamplingRate,
 			TracerEndpoint:      tracerEndpoint,
 		}
-		tracer := NewTracer(tracerConfig, appID, logger)
+		tracer := NewTracer(tracerConfig, appID)
 
 		SetTracer(tracer)
 	}
