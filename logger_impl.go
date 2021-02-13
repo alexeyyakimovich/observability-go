@@ -56,8 +56,13 @@ func (wrapper logrusWrapper) Fatalf(format string, args ...interface{}) {
 }
 
 func (wrapper logrusWrapper) WithFields(fields map[string]interface{}) Logger {
-	f := wrapper.fields
+	f := make(map[string]interface{}, len(wrapper.fields)+len(fields))
+
 	for k, v := range fields {
+		f[k] = v
+	}
+
+	for k, v := range wrapper.fields {
 		f[k] = v
 	}
 
@@ -68,8 +73,12 @@ func (wrapper logrusWrapper) WithFields(fields map[string]interface{}) Logger {
 }
 
 func (wrapper logrusWrapper) WithField(key string, value interface{}) Logger {
-	f := wrapper.fields
+	f := make(map[string]interface{}, len(wrapper.fields)+1)
 	f[key] = value
+
+	for k, v := range wrapper.fields {
+		f[k] = v
+	}
 
 	return &logrusWrapper{
 		logrus: wrapper.logrus,
