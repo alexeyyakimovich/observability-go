@@ -10,10 +10,10 @@ import (
 	"syscall"
 	"time"
 
-	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/metric/prometheus"
 	"go.opentelemetry.io/otel/label"
 	"go.opentelemetry.io/otel/metric"
+	"go.opentelemetry.io/otel/metric/global"
 )
 
 // MetricsExporter contains settings for exporting metrics.
@@ -132,8 +132,7 @@ func NewMetricsExporter(config MetricsConfiguration, fields map[string]interface
 
 	log := GetLogger()
 
-	// NOTE: will be moved back to go.opentelemetry.io/otel/metric/global
-	meter := otel.GetMeterProvider().Meter("github.com/alexeyyakimovich/observability-go")
+	meter := global.GetMeterProvider().Meter("github.com/alexeyyakimovich/observability-go")
 
 	exporter, err := prometheus.InstallNewPipeline(prometheus.Config{})
 	if err != nil {
