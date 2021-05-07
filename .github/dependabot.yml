@@ -1,0 +1,36 @@
+version: 2
+updates:
+- package-ecosystem: gomod
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "02:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: go.opentelemetry.io/otel
+    versions:
+    - 0.17.0
+    - 0.18.0
+    - 0.19.0
+  - dependency-name: go.opentelemetry.io/otel/exporters/metric/prometheus
+    versions:
+    - 0.17.0
+    - 0.18.0
+    - 0.19.0
+  - dependency-name: go.opentelemetry.io/otel/exporters/trace/jaeger
+    versions:
+    - 0.17.0
+    - 0.18.0
+    - 0.19.0
+  - dependency-name: go.opentelemetry.io/otel/sdk
+    versions:
+    - 0.17.0
+    - 0.18.0
+    - 0.19.0
+  - dependency-name: github.com/sirupsen/logrus
+    versions:
+    - 1.7.1
+    - 1.8.0
+  - dependency-name: github.com/stretchr/testify
+    versions:
+    - 1.7.0
